@@ -1,0 +1,12 @@
+## macOS
+**/._*
+**/.DS_Store
+
+## Latex
+**/*.aux
+**/*.log
+**/*.toc
+
+## Binaries
+**/*.out
+**/*.o
