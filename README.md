@@ -5,6 +5,6 @@ iterative approach to the [Poisson equation](https://en.wikipedia.org/wiki/Poiss
 
 
 ## Goals
-- [ ] Barebones (sequential) implementation with no Red-Black scheme
-- [ ] Parallel-ready implementation using Red-Black scheme
-- [ ] Actual parallel version in a [distributed memory](https://en.wikipedia.org/wiki/Distributed_memory) paradigm
+- [ ] Barebones (sequential) [implementation](src/SEQ) with no Red-Black scheme
+- [ ] Parallel-ready [implementation](src/RB-SEQ) using Red-Black scheme
+- [ ] Actual parallel [implementation](src/RB-PAR) in a [distributed memory](https://en.wikipedia.org/wiki/Distributed_memory) paradigm
