@@ -15,8 +15,8 @@ all: seq pseudo_par parallel
 seq: $(SEQ)/seq.c $(UTILS)/*.[hc]
 	$(CC) $(CFLAGS) $(IFLAGS) $(SEQ)/seq.c $(UTILS)/utils.c -o $(BIN)/seq 
 
-pseudo_par: $(UTILS)/*.[hc]
-	@echo "Not implemented!"
+pseudo_par: $(RB-SEQ)/rb_seq.c $(UTILS)/*.[hc]
+	$(CC) $(CFLAGS) $(IFLAGS) $(RB-SEQ)/rb_seq.c $(UTILS)/utils.c -o $(BIN)/rb_seq 
 	
 parallel: $(UTILS)/*.[hc]
 	@echo "Not implemented!"
