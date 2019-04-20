@@ -22,4 +22,4 @@ parallel: $(UTILS)/*.[hc]
 	@echo "Not implemented!"
 
 clean:
-	rm -rf bin/
+	rm -rf bin/*
