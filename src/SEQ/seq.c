@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 /* 
  * Returns the number of iterations performed
  */
