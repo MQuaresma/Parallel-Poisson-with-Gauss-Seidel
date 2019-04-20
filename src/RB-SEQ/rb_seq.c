@@ -9,6 +9,7 @@ int poissongs(float plate[][N][N], float tol){
 
     while(dif > tol){
         dif = 0.0f;             //differences at the borders are 0.0f
+        //Black
         for(int i = 1; i < N-1; i ++)
             for(int j = 2 - i%2; j < N-1; j +=2){
                 plate[!last][i][j] = (plate[!last][i-1][j] + plate[!last][i][j-1] + plate[last][i][j+1] + plate[last][i+1][j]) / 4.0f;
@@ -16,6 +17,7 @@ int poissongs(float plate[][N][N], float tol){
                 if(temp > dif) dif = temp;
             }
         
+        //Red
         for(int i = 1; i < N-1; i ++)
             for(int j = 1 + i%2; j < N-1; j +=2){
                 plate[!last][i][j] = (plate[!last][i-1][j] + plate[!last][i][j-1] + plate[last][i][j+1] + plate[last][i+1][j]) / 4.0f;

@@ -17,8 +17,6 @@ int poissongs(float plate[][N][N], float tol){
             }
         it ++;
         last = !last; //update matrix
-        printf("%f\n", dif);
-        printf("%d\n", last);
     }
     return it;
 }
