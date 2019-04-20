@@ -1,4 +1,5 @@
-#include "../UTILS/utils.h"
+#include "utils.h"
+
 
 /* 
  * Returns the number of iterations performed
