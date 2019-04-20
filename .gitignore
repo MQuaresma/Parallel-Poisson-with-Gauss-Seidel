@@ -10,4 +10,4 @@
 ## Binaries
 **/*.out
 **/*.o
-bin/**
+**/bin/**

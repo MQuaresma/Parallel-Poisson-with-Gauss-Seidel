@@ -12,7 +12,7 @@ int poissongs(float plate[][N][N], float tol){
         //Black
         for(int i = 1; i < N-1; i ++)
             for(int j = 2 - i%2; j < N-1; j +=2){
-                plate[!last][i][j] = (plate[!last][i-1][j] + plate[!last][i][j-1] + plate[last][i][j+1] + plate[last][i+1][j]) / 4.0f;
+                plate[!last][i][j] = (plate[last][i-1][j] + plate[last][i][j-1] + plate[last][i][j+1] + plate[last][i+1][j]) / 4.0f;
                 temp = fabs(plate[!last][i][j] - plate[last][i][j]);
                 if(temp > dif) dif = temp;
             }
@@ -20,15 +20,13 @@ int poissongs(float plate[][N][N], float tol){
         //Red
         for(int i = 1; i < N-1; i ++)
             for(int j = 1 + i%2; j < N-1; j +=2){
-                plate[!last][i][j] = (plate[!last][i-1][j] + plate[!last][i][j-1] + plate[last][i][j+1] + plate[last][i+1][j]) / 4.0f;
+                plate[!last][i][j] = (plate[!last][i-1][j] + plate[!last][i][j-1] + plate[!last][i][j+1] + plate[!last][i+1][j]) / 4.0f;
                 temp = fabs(plate[!last][i][j] - plate[last][i][j]);
                 if(temp > dif) dif = temp;
             }
 
         it ++;
         last = !last; //update matrix
-        printf("%f\n", dif);
-        printf("%d\n", last);
     }
     return it;
 }
@@ -40,6 +38,12 @@ int main(int argc, char *argv[]){
     int it;
 
     initPlate(plate);
+
+    for(int i=0; i<N; i++){
+        for(int j=0; j<N; j++)
+            printf("%f\t",plate[0][i][j]);
+        printf("\n");
+    }
 
     it = poissongs(plate, tol);
     printf("Sequential Poisson GS with Red-Back strategy\n Iteration Count: %d\n", it);
