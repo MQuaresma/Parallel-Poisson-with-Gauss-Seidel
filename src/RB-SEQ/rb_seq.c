@@ -39,12 +39,6 @@ int main(int argc, char *argv[]){
 
     initPlate(plate);
 
-    for(int i=0; i<N; i++){
-        for(int j=0; j<N; j++)
-            printf("%f\t",plate[0][i][j]);
-        printf("\n");
-    }
-
     it = poissongs(plate, tol);
     printf("Sequential Poisson GS with Red-Back strategy\n Iteration Count: %d\n", it);
 
