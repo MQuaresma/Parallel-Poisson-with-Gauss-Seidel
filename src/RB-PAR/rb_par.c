@@ -1,5 +1,5 @@
-#include "utils.h"
 #include <mpi.h>
+#include "utils.h"
 
 void phase(int rows_per_proc, float tempProc[2][(rows_per_proc+2)*N], int rank, int last, int ph, int remaining_rows, int no_procs, MPI_Status status){
     if (rank == 0) {
@@ -112,7 +112,7 @@ int poissongs(float plate[][N*N], float tol, int rank, int no_procs, MPI_Status 
 int main(int argc, char *argv[]){
     float plate[2][N*N];
     float tol = 1.0f / (N*N);
-    int it, rank, no_procs,
+    int it, rank, no_procs;
 
     initPlateForMPI(plate);
 
