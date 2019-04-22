@@ -33,13 +33,6 @@ float phase(int rows_per_proc, float tempProc[2][(rows_per_proc+2)*N], int rank,
     float dif, temp;
     dif = 0.0f;
 
-    for(int i = 0; i < rows_per_proc+2; i ++){
-        for(int j = 0; j < N; j ++)
-            printf("%f\t", tempProc[last][i*N+j]);
-        printf("\n");
-
-    } 
-
     //Black
     for(int i = 1; i < remaining_rows-1; i ++)
         for(int j = 2 - i%2; j < N-1; j +=2){
