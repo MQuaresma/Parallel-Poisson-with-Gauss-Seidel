@@ -3,36 +3,33 @@
 
 void updateValues(float plate[][N*N], int last, int offset, int rows, int rank, int no_procs, MPI_Status status){
     if(!rank){
-        MPI_Recv( plate[last], N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
-        MPI_Send( &(plate[last][N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
+        MPI_Recv( &(plate[last][(rows+1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
+        MPI_Send( &(plate[last][rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
     }else{
-        if(rank!=1)
-            MPI_Send( &(plate[last][N]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
+        MPI_Send( &(plate[last][offset]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
 
         if(rank!=no_procs-1)
-            MPI_Recv( &(plate[last][(rows+1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
+            MPI_Recv( &(plate[last][offset + (rows+1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
 
         if(rank!=no_procs-1)
-            MPI_Send( &(plate[last][rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
+            MPI_Send( &(plate[last][offset + rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
 
-        if(rank!=1)
-            MPI_Recv( plate[last], N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
+        MPI_Recv( &(plate[last][offset - N]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
 
         if(rank==no_procs-1){
-            MPI_Send( &(plate[last][N]), N, MPI_FLOAT, 0, 2, MPI_COMM_WORLD);
-            MPI_Recv( plate[last], N, MPI_FLOAT, 0, 2, MPI_COMM_WORLD, &status );
+            MPI_Send( &(plate[last][offset]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
+            MPI_Recv( &(plate[offset - N]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
         }
     }
 
 }
-
 
 float phase(float plate[][N*N], int last, int offset, int rows, int rank, int no_procs, MPI_Status status){
     float dif, temp;
     dif = 0.0f;
 
     //Black
-    for(int i = 1; i < rows-1; i ++)
+    for(int i = (!rank) ? 1 : 0; i < offset + ((rank==no_procs-1) ? rows-1 : rows); i ++)
         for(int j = 2 - i%2; j < N-1; j +=2){
             plate[!last][offset + i*N+j] = (plate[last][offset + (i-1)*N+j] + plate[last][offset + i*N+j-1] + plate[last][offset + i*N+j+1] + plate[last][offset + (i+1)*N+j]) / 4.0f;
             temp = fabs(plate[!last][offset + i*N+j] - plate[last][offset + i*N+j]);
@@ -42,7 +39,7 @@ float phase(float plate[][N*N], int last, int offset, int rows, int rank, int no
     updateValues(plate, !last, offset, rows, rank, no_procs, status);
 
     //Red
-    for(int i = 1; i < rows-1; i ++)
+    for(int i = (!rank) ? 1 : 0; i < offset + ((rank==no_procs-1) ? rows-1 : rows); i ++)
         for(int j = 1 + i%2; j < N-1; j +=2){
             plate[!last][offset + i*N+j] = (plate[!last][offset + (i-1)*N+j] + plate[!last][offset + i*N+j-1] + plate[!last][offset + i*N+j+1] + plate[!last][offset + (i+1)*N+j]) / 4.0f;
             temp = fabs(plate[!last][offset + i*N+j] - plate[last][offset + i*N+j]);
@@ -83,7 +80,7 @@ int poissongs(float plate[][N*N], float tol, int rank, int no_procs, MPI_Status 
             dif = phase(plate, last, offset, remaining_rows, rank, no_procs, status);
         else
             dif = phase(plate, last, offset, rows_per_proc, rank, no_procs, status);
-        
+
         it ++;
         last = !last; //update matrix
     }
@@ -93,9 +90,9 @@ int poissongs(float plate[][N*N], float tol, int rank, int no_procs, MPI_Status 
         begin = rows_per_proc;
 
         for(int i=1; i<no_procs-1; i++, begin+=rows_per_proc)
-            MPI_Recv(&(plate[last][begin], rows_per_proc*N, MPI_FLOAT, i, 3, MPI_COMM_WORLD, &status);
+            MPI_Recv(&(plate[last][begin]), rows_per_proc*N, MPI_FLOAT, i, 3, MPI_COMM_WORLD, &status);
 
-        MPI_Recv(&(plate[last][begin], remaining_rows*N, MPI_FLOAT, i, 3, MPI_COMM_WORLD, &status);
+        MPI_Recv(&(plate[last][begin]), remaining_rows*N, MPI_FLOAT, no_procs-1, 3, MPI_COMM_WORLD, &status);
     }else if(rank == no_procs-1) {
         MPI_Send( &(plate[last][offset]), remaining_rows*N, MPI_FLOAT, 0, 3, MPI_COMM_WORLD);
     }else{
