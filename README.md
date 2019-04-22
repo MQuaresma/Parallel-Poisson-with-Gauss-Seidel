@@ -7,4 +7,4 @@ iterative approach to the [Poisson equation](https://en.wikipedia.org/wiki/Poiss
 ## Goals
 - [x] Barebones (sequential) [implementation](src/SEQ) with no Red-Black scheme
 - [x] Parallel-ready [implementation](src/RB-SEQ) using Red-Black scheme
-- [ ] Actual parallel [implementation](src/RB-PAR) in a [distributed memory](https://en.wikipedia.org/wiki/Distributed_memory) paradigm
+- [x] Actual parallel [implementation](src/RB-PAR) in a [distributed memory](https://en.wikipedia.org/wiki/Distributed_memory) paradigm
