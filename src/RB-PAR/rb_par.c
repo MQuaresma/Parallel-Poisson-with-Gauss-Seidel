@@ -83,14 +83,14 @@ int poissongs(float plate[][N*N], float tol, int rank, int no_procs, MPI_Status 
     if(!rank){
         begin = rows_per_proc;
 
-        for(int i=1; i<no_procs-1; i++, begin+=rows_per_proc)
+        for(int i=1; i<no_procs-1; i++, begin+=rows_per_proc*N)
             MPI_Recv(&(plate[last][begin]), rows_per_proc*N, MPI_FLOAT, i, 3, MPI_COMM_WORLD, &status);
 
         MPI_Recv(&(plate[last][begin]), remaining_rows*N, MPI_FLOAT, no_procs-1, 3, MPI_COMM_WORLD, &status);
     }else if(rank == no_procs-1) {
-        MPI_Send( &(plate[last][offset]), remaining_rows*N, MPI_FLOAT, 0, 3, MPI_COMM_WORLD);
+        MPI_Send( &(plate[last][offset*N]), remaining_rows*N, MPI_FLOAT, 0, 3, MPI_COMM_WORLD);
     }else{
-        MPI_Send( &(plate[last][offset]), rows_per_proc*N, MPI_FLOAT, 0, 3, MPI_COMM_WORLD);
+        MPI_Send( &(plate[last][offset*N]), rows_per_proc*N, MPI_FLOAT, 0, 3, MPI_COMM_WORLD);
     }
 
     return it;
