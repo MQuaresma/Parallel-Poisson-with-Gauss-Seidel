@@ -1,42 +1,76 @@
 #include <mpi.h>
 #include "utils.h"
 
-void phase(int rows_per_proc, float tempProc[2][(rows_per_proc+2)*N], int rank, int last, int ph, int remaining_rows, int no_procs, MPI_Status status){
-    if(ph==0){
-        //Black
-        for(int i = 1; i < remaining_rows-1; i ++)
-            for(int j = 2 - i%2; j < N-1; j +=2)
-                tempProc[!last][i*N+j] = (tempProc[last][(i-1)*N+j] + tempProc[last][i*N+j-1] + tempProc[last][i*N+j+1] + tempProc[last][(i+1)*N+j]) / 4.0f;
-    }else{
-        //Red
-        for(int i = 1; i < remaining_rows-1; i ++)
-            for(int j = 1 + i%2; j < N-1; j +=2)
-                tempProc[!last][i*N+j] = (tempProc[!last][(i-1)*N+j] + tempProc[!last][i*N+j-1] + tempProc[!last][i*N+j+1] + tempProc[!last][(i+1)*N+j]) / 4.0f;
-    }
-
+void updateValues(int rows_per_proc, float tempProc[2][(rows_per_proc+2)*N], int last, int rank, int no_procs, MPI_Status status){
     if(!rank){
         //comunica com o ultimo
-        MPI_Recv( tempProc[!last], 1*N, MPI_FLOAT, no_procs-1, 2, MPI_COMM_WORLD, &status );
-        MPI_Send( &(tempProc[!last][1*N]), 1*N, MPI_FLOAT, no_procs-1, 2, MPI_COMM_WORLD);
+        MPI_Recv( tempProc[last], 1*N, MPI_FLOAT, no_procs-1, 2, MPI_COMM_WORLD, &status );
+        MPI_Send( &(tempProc[last][1*N]), 1*N, MPI_FLOAT, no_procs-1, 2, MPI_COMM_WORLD);
     }else{
         if(rank!=1)
-            MPI_Send( &(tempProc[!last][1*N]), 1*N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
+            MPI_Send( &(tempProc[last][1*N]), 1*N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
 
         if(rank!=no_procs-1)
-            MPI_Recv( &(tempProc[!last][(rows_per_proc+1)*N]), 1*N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
+            MPI_Recv( &(tempProc[last][(rows_per_proc+1)*N]), 1*N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
 
         if(rank!=no_procs-1)
-            MPI_Send( &(tempProc[!last][rows_per_proc*N]), 1*N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
+            MPI_Send( &(tempProc[last][rows_per_proc*N]), 1*N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
 
         if(rank!=1)
-            MPI_Recv( tempProc[!last], 1*N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
+            MPI_Recv( tempProc[last], 1*N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
 
         if(rank==no_procs-1){
             //comunica com o 0
-            MPI_Send( &(tempProc[!last][1*N]), 1*N, MPI_FLOAT, 0, 2, MPI_COMM_WORLD);
-            MPI_Recv( tempProc[!last], 1*N, MPI_FLOAT, 0, 2, MPI_COMM_WORLD, &status );
+            MPI_Send( &(tempProc[last][1*N]), 1*N, MPI_FLOAT, 0, 2, MPI_COMM_WORLD);
+            MPI_Recv( tempProc[last], 1*N, MPI_FLOAT, 0, 2, MPI_COMM_WORLD, &status );
         }
     }
+
+}
+
+
+float phase(int rows_per_proc, float tempProc[2][(rows_per_proc+2)*N], int rank, int last, int remaining_rows, int no_procs, MPI_Status status){
+    float dif, temp;
+    dif = 0.0f;
+
+    for(int i = 0; i < rows_per_proc+2; i ++){
+        for(int j = 0; j < N; j ++)
+            printf("%f\t", tempProc[last][i*N+j]);
+        printf("\n");
+
+    } 
+
+    //Black
+    for(int i = 1; i < remaining_rows-1; i ++)
+        for(int j = 2 - i%2; j < N-1; j +=2){
+            tempProc[!last][i*N+j] = (tempProc[last][(i-1)*N+j] + tempProc[last][i*N+j-1] + tempProc[last][i*N+j+1] + tempProc[last][(i+1)*N+j]) / 4.0f;
+            temp = fabs(tempProc[!last][i*N+j] - tempProc[last][i*N+j]);
+            if(temp > dif) dif = temp;
+        }
+
+    updateValues(rows_per_proc, tempProc, !last, rank, no_procs, status);
+
+    //Red
+    for(int i = 1; i < remaining_rows-1; i ++)
+        for(int j = 1 + i%2; j < N-1; j +=2){
+            tempProc[!last][i*N+j] = (tempProc[!last][(i-1)*N+j] + tempProc[!last][i*N+j-1] + tempProc[!last][i*N+j+1] + tempProc[!last][(i+1)*N+j]) / 4.0f;
+            temp = fabs(tempProc[!last][i*N+j] - tempProc[last][i*N+j]);
+            if(temp > dif) dif = temp;
+        }
+
+    if(rank){
+        MPI_Send( &dif, 1, MPI_FLOAT, 0, 1, MPI_COMM_WORLD);
+        MPI_Recv( &dif, 1, MPI_FLOAT, 0, 1, MPI_COMM_WORLD, &status);
+    }else{
+        for(int i=1; i<no_procs; i++){
+            MPI_Recv( &temp, 1, MPI_FLOAT, i, 1, MPI_COMM_WORLD, &status);
+            if(temp > dif) dif = temp;
+        }
+        for(int i=1; i<no_procs; i++){
+            MPI_Send( &dif, 1, MPI_FLOAT, i, 1, MPI_COMM_WORLD);
+        }
+    }
+    return dif;
 }
 
 /* 
@@ -66,18 +100,8 @@ int poissongs(float plate[][N*N], float tol, int rank, int no_procs, MPI_Status 
     }
 
     while(dif > tol){
-        dif = 0.0f;             //differences at the borders are 0.0f
-
-        //Black
-        phase(rows_per_proc,tempProc,rank,last,0,remaining_rows, no_procs, status);
+        dif = phase(rows_per_proc,tempProc,rank,last,remaining_rows, no_procs, status);
         
-        //TODO: wait
-        
-        //Red
-        phase(rows_per_proc,tempProc,rank,last,1,remaining_rows, no_procs, status);
-
-        //TODO: process 0 calculate dif, and send to others processes(maybe)
-
         it ++;
         last = !last; //update matrix
     }
