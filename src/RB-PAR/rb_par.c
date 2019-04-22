@@ -3,25 +3,19 @@
 
 void updateValues(float plate[][N*N], int last, int offset, int rows, int rank, int no_procs, MPI_Status status){
     if(!rank){
-        MPI_Recv( &(plate[last][(rows+1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
-        MPI_Send( &(plate[last][rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
+        MPI_Recv( &(plate[last][rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
+        MPI_Send( &(plate[last][(rows-1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
     }else{
         MPI_Send( &(plate[last][offset]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
 
         if(rank!=no_procs-1)
-            MPI_Recv( &(plate[last][offset + (rows+1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
+            MPI_Recv( &(plate[last][offset + rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD, &status );
 
         if(rank!=no_procs-1)
-            MPI_Send( &(plate[last][offset + rows*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
+            MPI_Send( &(plate[last][offset + (rows-1)*N]), N, MPI_FLOAT, rank+1, 2, MPI_COMM_WORLD);
 
         MPI_Recv( &(plate[last][offset - N]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
-
-        if(rank==no_procs-1){
-            MPI_Send( &(plate[last][offset]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD);
-            MPI_Recv( &(plate[offset - N]), N, MPI_FLOAT, rank-1, 2, MPI_COMM_WORLD, &status );
-        }
     }
-
 }
 
 float phase(float plate[][N*N], int last, int offset, int rows, int rank, int no_procs, MPI_Status status){
@@ -80,6 +74,8 @@ int poissongs(float plate[][N*N], float tol, int rank, int no_procs, MPI_Status 
             dif = phase(plate, last, offset, remaining_rows, rank, no_procs, status);
         else
             dif = phase(plate, last, offset, rows_per_proc, rank, no_procs, status);
+
+        printf("T: %f %f\n",dif,tol);
 
         it ++;
         last = !last; //update matrix
