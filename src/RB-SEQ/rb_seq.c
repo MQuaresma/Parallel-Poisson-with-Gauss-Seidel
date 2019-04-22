@@ -28,6 +28,15 @@ int poissongs(float plate[][N][N], float tol){
         it ++;
         last = !last; //update matrix
     }
+    
+    //Print
+    /*
+    for(int i=0; i<N; i++){
+        for(int j=0; j<N; j++)
+            printf("%f\t",plate[!last][i][j]);
+        printf("\n");
+    }*/
+
     return it;
 }
 
@@ -40,6 +49,7 @@ int main(int argc, char *argv[]){
     initPlate(plate);
 
     it = poissongs(plate, tol);
+    
     printf("Sequential Poisson GS with Red-Back strategy\n Iteration Count: %d\n", it);
 
     return 0;
