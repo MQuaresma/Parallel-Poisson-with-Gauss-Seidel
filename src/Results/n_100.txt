@@ -1,6 +1,0 @@
-Sequential Poisson GS
- Iteration Count: 5979
- 
-Sequential Poisson GS with Red-Back strategy
- Iteration Count: 6013
- 
