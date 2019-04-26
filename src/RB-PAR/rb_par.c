@@ -131,7 +131,7 @@ int main(int argc, char *argv[]){
     MPI_Finalize();
 
     if(rank == 0)
-        printf("Sequential Poisson GS with Red-Back strategy\n Iteration Count: %d\n", it);
+        printf("Parallel Poisson GS with Red-Back strategy\n Iteration Count: %d\n", it);
 
     return 0;
 }
