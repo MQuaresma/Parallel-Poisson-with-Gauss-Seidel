@@ -12,6 +12,8 @@ fi
 
 
 N=10
+rm -r bin
+mkdir bin
 while [ $N -lt 10000 ]; do
     RESULT_FILE=$RESULT_DIR/n_$N.txt
 
@@ -29,3 +31,4 @@ while [ $N -lt 10000 ]; do
 
     let N=N*10
 done
+rm -r bin
