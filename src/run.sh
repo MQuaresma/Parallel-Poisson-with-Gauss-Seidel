@@ -27,7 +27,7 @@ while [ $N -lt 10000 ]; do
     ./bin/rb_seq >> $RESULT_FILE
     echo " " >> $RESULT_FILE
 
-    mpirun -np 8 bin/rb_par >> $RESULT_FILE
+    mpirun --map-by node -np 8 bin/rb_par >> $RESULT_FILE
 
     let N=N*10
 done
