@@ -3,6 +3,7 @@ Parallel implementation, using a [Red-Black](https://www.cs.cornell.edu/~bindel/
 iterative approach to the [Poisson equation](https://en.wikipedia.org/wiki/Poisson%27s_equation) using the 
 [Gauss-Seidel method](https://en.wikipedia.org/wiki/Gauss–Seidel_method).
 
+For more information you can have a look [here](report/Report.pdf).
 
 ## Goals
 - [x] Barebones (sequential) [implementation](src/SEQ) with no Red-Black scheme
